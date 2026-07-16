@@ -1,4 +1,4 @@
-# Custom Start Page
+# Custom Start Page Inspired by Lagomor.ph's [Start Page](https://lagomor.ph/start/).
 
 A lightweight, customizable start page with live weather, RSS feeds, calendar, and quick links. Designed for GitHub Pages.
 
