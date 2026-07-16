@@ -167,4 +167,17 @@ Public domain. Use, modify, fork, host as you like.
 - Works offline except for weather & feeds
 - Geolocation is optional (uses default if denied)
 
+Here are 10 topic tags for your start page repo:
+
+start-page – Core functionality
+github-pages – Deployment platform
+weather-api – Live weather feature
+rss-feed – Feed aggregation
+calendar – Interactive calendar component
+vanilla-javascript – No frameworks/dependencies
+responsive-design – Mobile-friendly
+open-meteo – Weather data source
+quick-links – Bookmark/shortcut feature
+static-site – No backend required
+
 Enjoy your custom start page!
