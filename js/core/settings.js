@@ -4,7 +4,7 @@ import { allDefs, getDef } from './widgets.js';
 import { h, clone, deepMerge, download, pickFile, imageToDataURL, uid } from './util.js';
 import { searchCity, geolocate } from './weather-data.js';
 import { THEME_VARS } from './theme.js';
-import { workerBase } from './worker.js';
+import { workerBase, workerFetch } from './worker.js';
 import * as app from './app.js';
 
 /* ---------- field builders ---------- */
@@ -274,7 +274,16 @@ export function openGlobalSettings(section = 'general') {
           const r = await fetch(workerBase() + '/health');
           status.textContent = r.ok ? '✓ Worker reachable: ' + (await r.text()).slice(0, 80) : '⚠ HTTP ' + r.status;
         } catch (e) { status.textContent = '⚠ ' + e.message; }
-      } }, 'Test connection'), status));
+      } }, 'Test connection'), status),
+      h('div.row',
+        h('button', { type: 'button', onclick: async () => {
+          status.textContent = 'Pushing…';
+          try { await workerFetch('/sync', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: store.exportConfig() }); status.textContent = '✓ Config pushed to Worker KV'; } catch (e) { status.textContent = '⚠ ' + e.message; }
+        } }, 'Push config → Worker'),
+        h('button', { type: 'button', onclick: async () => {
+          status.textContent = 'Pulling…';
+          try { const text = await (await workerFetch('/sync')).text(); if (text.trim() === 'null') throw new Error('Nothing stored yet — push first'); if (confirm('Replace this browser\'s config with the synced copy?')) { store.importConfig(text); status.textContent = '✓ Pulled'; } else status.textContent = ''; } catch (e) { status.textContent = '⚠ ' + e.message; }
+        } }, 'Pull config ← Worker')));
   });
 
   addSection('data', 'Backup & data', () => h('div',
