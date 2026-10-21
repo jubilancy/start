@@ -1,0 +1,7 @@
+{
+  "name": "start",
+  "private": true,
+  "type": "module",
+  "description": "Personal start page — vanilla JS, no build step. package.json exists only so Node treats the files as ES modules for tests.",
+  "scripts": { "test": "node tests/unit.mjs" }
+}

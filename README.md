@@ -1,183 +1,70 @@
-# Custom Start Page Inspired by Lagomor.ph's [Start Page](https://lagomor.ph/start/).
+# Start page
 
-A lightweight, customizable start page with live weather, RSS feeds, calendar, and quick links. Designed for GitHub Pages.
+A fully customizable personal start page: vanilla HTML/CSS/JS, **no framework and no build step**, hosted on GitHub Pages at <https://start.glosse.me>. Everything is a widget you can add, drag, resize, restyle and configure from the UI. An optional Cloudflare Worker adds the few things a browser can't do alone.
 
-## Features
+## How it works
 
-- **Live Weather** – Auto-detects location (or uses default), displays current conditions via Open-Meteo API
-- **RSS Feeds** – Toggle between Hacker News and your own feed sources
-- **Calendar** – Interactive month view with navigation
-- **Search** – Smart URL detection, domain shortcuts, or search via Kagi
-- **Quick Links** – 8 customizable icon shortcuts
-- **Responsive Design** – Works on mobile, tablet, and desktop
-- **No Backend Required** – Static site, pure JavaScript + CSS
-
-## File Structure
-
-```
-start-page/
-├── index.html          # Main HTML
-├── style.css           # Stylesheet (cream/sage green aesthetic)
-├── currenttime.js      # Time of day greeting
-├── calendar.js         # Calendar generation & navigation
-├── weather.js          # Weather API (Open-Meteo)
-├── rss.js              # RSS feed fetching & switching
-├── search.js           # Search & URL navigation
-└── README.md           # This file
-```
+- `index.html` is an empty shell; `js/main.js` registers widgets and boots `js/core/app.js`.
+- **Config**: `config.json` is the shipped default. Your edits live in `localStorage` (`startpage.config.v1`) on top of it. Export / import / reset from **Settings → Backup & data**. To make your layout the default on every device, use *Copy config for config.json* and commit it.
+- **Layout**: tabs → columns → widgets. Click ✎ to edit: drag the ⠿ handle (or use ▲▼◀▶ buttons for keyboard use), drag the bottom bar to set a height, change column widths, add/remove columns.
+- **Widgets** are self-contained modules in `js/widgets/` (see *Writing a widget*).
+- **Appearance**: light / dark / follow system, per-variable color overrides, custom CSS, font (system presets, Google Font name, or uploaded font file), background (color, gradient, image URL or upload).
+- **Tab title and favicon** are settable from **Settings → General** (emoji, image URL or uploaded image).
+- **Command palette**: `Ctrl/Cmd+K` jumps to any link, tab or widget; `/` focuses search.
 
 ## Setup
 
-### Option 1: GitHub Pages (Recommended)
+1. Fork/clone this repo and enable GitHub Pages (deploy from `main`, root). Keep the `CNAME` file as is.
+2. Edit `config.json` (or edit in the UI and export).
+3. Local preview: any static server, e.g. `npx http-server -c-1 .` (ES modules need `http://`, not `file://`).
+4. Tests: `npm test`.
 
-1. Create a new repo: `{username}.github.io` or any name
-2. Clone it or create via GitHub
-3. Unzip this folder into the repo root
-4. Push to GitHub
-5. Your site is live at `https://{username}.github.io/` or `https://{username}.github.io/start-page/`
+## Widgets
 
-### Option 2: Local Testing
+| Widget | Data source | Docs | Limits |
+|---|---|---|---|
+| Greeting | Open-Meteo (weather tokens) | [Open-Meteo docs](https://open-meteo.com/en/docs) | Non-commercial use, fair-use rate limits |
+| Weather (+ forecast strip, city search) | Open-Meteo forecast + geocoding | [forecast](https://open-meteo.com/en/docs) · [geocoding](https://open-meteo.com/en/docs/geocoding-api) | Same; 429 when shared IPs hammer it |
+| RSS / News (multi-feed, unread, OPML) | Any RSS/Atom/JSON Feed; `hn:top|new|best` uses the Hacker News Firebase API | [HN API](https://github.com/HackerNews/API) | Most feeds lack CORS headers → need the Worker `/proxy` |
+| Calendar (month, ICS agenda, Google embed) | ICS URL via browser/Worker; Google Calendar embed iframe | [Google embed help](https://support.google.com/calendar/answer/41207) | ICS usually needs Worker proxy; embed needs a public calendar or Google sign-in |
+| Search | None (builds URLs) | — | — |
+| Quick links | Favicon chain: DuckDuckGo → Google s2 → `/favicon.ico` → letter; [Simple Icons](https://simpleicons.org) and [Lucide](https://lucide.dev) via jsDelivr | [jsDelivr](https://www.jsdelivr.com/) | Favicon services are third-party image requests |
 
-```bash
-# Navigate to the folder
-cd start-page
+(More widgets are added in later milestones; this table is the source of truth for data sources.)
 
-# Simple HTTP server (Python 3)
-python -m http.server 8000
+## Writing a widget
 
-# Then visit: http://localhost:8000
+Create `js/widgets/mything.js`, import it in `js/main.js`, and call `register()`:
+
+```js
+import { register } from '../core/widgets.js';
+import { h } from '../core/util.js';
+
+register({
+  type: 'mything',                 // unique id stored in config
+  name: 'My thing', icon: '🧩', description: 'Shown in the add-widget picker',
+  card: false,                     // bordered card by default?
+  needsWorker: false,              // show a "set Worker URL" hint when unset
+  refreshEvery: 600,               // seconds; paused while the tab is hidden
+  defaults: { greeting: 'hi' },    // per-instance config defaults
+  schema: [                        // the settings form is generated from this
+    { key: 'greeting', label: 'Greeting', type: 'text' },
+    // types: text textarea number checkbox select color password location
+    //        lines (array of "a | b | c" objects, `fields:[…]`)   codec (custom encode/decode)
+  ],
+  settings(box, api) {},           // optional: extra settings UI; api.draft / api.set(patch)
+  render(el, ctx) { el.replaceChildren(h('p', ctx.config.greeting)); },
+  refresh(el, ctx) {},             // optional, defaults to render()
+  destroy(el, ctx) {},             // optional cleanup
+});
 ```
 
-## Customization
+`ctx` gives `id`, `config` (defaults merged), `settings` (global), `save(patch)` to persist widget state, `rerender()`, `worker(path, opts)` and `bus`.
 
-### Change Quick Links
+## Browser support
 
-Edit `index.html` and modify the `<a>` tags in the icon rows:
-
-```html
-<a href="https://your-url.com" title="Label">
-  <img src="https://icongr.am/simple/icon-name.svg?size=18&color=currentColor" alt="Label">
-</a>
-```
-
-**Icon sources:**
-- [Feather Icons](https://icongr.am/feather/) – general icons
-- [Simple Icons](https://icongr.am/simple/) – brand/platform logos
-- Or use your own SVG/PNG
-
-### Add RSS Feeds
-
-In `rss.js`, add your feed to the `feedSources` object:
-
-```javascript
-const feedSources = {
-  'Hacker News': 'https://news.ycombinator.com/rss',
-  'Feed.Eliana': 'https://feed.eliana.lol/feed.json',
-  'Your Feed': 'https://your-feed-url.com/feed.xml',  // Add here
-};
-```
-
-**Note:** JSON feeds (like feed.eliana.lol) work too. The script auto-detects format.
-
-### Change Weather Location
-
-In `weather.js`, replace the default lat/lon:
-
-```javascript
-// Default: Alexandria, Virginia
-let lat = 38.8048;
-let lon = -77.0469;
-```
-
-Or let users allow geolocation (already enabled – just ask for permission).
-
-### Customize Colors
-
-Edit the CSS variables in `style.css`:
-
-```css
-:root {
-  --bg: #fafaf8;           /* Background */
-  --text: #1a1a1a;         /* Text */
-  --border: #d4d4ce;       /* Borders */
-  --accent: #2d5016;       /* Sage green */
-  --light-accent: #e8eee3; /* Light green */
-}
-```
-
-### Change Search Engine
-
-In `search.js`, replace `kagi.com` with your preferred engine:
-
-```javascript
-// Options: kagi.com, duckduckgo.com, startpage.com, google.com
-window.location.href = `https://kagi.com/search?q=${encodeURIComponent(searchInput)}`;
-```
-
-## APIs & Data Sources
-
-- **Weather**: [Open-Meteo](https://open-meteo.com/) – Free, no API key, no rate limits
-- **RSS Feeds**: Public feeds (Hacker News, your own feeds)
-- **Calendar**: Native JavaScript `Date` API
-- **Icons**: [Icongr.am](https://icongr.am/) – Free SVG icons
-
-**Important**: All requests are browser-side. No backend needed. Feeds are fetched directly by your browser.
-
-## Troubleshooting
-
-### Weather not showing
-- Check browser console for errors (F12)
-- Ensure geolocation permission is granted (or uses default coords)
-- Open-Meteo API should always work (it's a public endpoint)
-
-### Feeds not loading
-- RSS feeds must have CORS headers or be proxied
-- If a feed fails, the script falls back gracefully
-- Test feed URLs directly in browser
-
-### Search not working
-- Clear browser cache (Ctrl+Shift+Del)
-- Ensure searchbar has focus (`handleSearchOrURL()` fires on form submit)
-
-## Deployment Checklist
-
-- [ ] Customize quick links (index.html)
-- [ ] Update RSS feed sources (rss.js) or remove custom feeds
-- [ ] Verify weather location (weather.js)
-- [ ] Change color scheme if desired (style.css)
-- [ ] Test in Firefox, Chrome, Safari
-- [ ] Push to GitHub Pages
-- [ ] Set as browser homepage (most browsers allow custom start page URL)
-
-## Browser Support
-
-- Chrome/Edge 90+
-- Firefox 88+
-- Safari 14+
-- Mobile browsers (responsive CSS included)
+Current Chrome/Edge, Firefox and Safari (ES modules, `<dialog>`, CSS `:has()` and `color-mix()`).
 
 ## License
 
-Public domain. Use, modify, fork, host as you like.
-
-## Notes
-
-- No tracking, no analytics, no external dependencies (besides APIs)
-- All data stays on your device
-- Works offline except for weather & feeds
-- Geolocation is optional (uses default if denied)
-
-Here are 10 topic tags for your start page repo:
-
-start-page – Core functionality
-github-pages – Deployment platform
-weather-api – Live weather feature
-rss-feed – Feed aggregation
-calendar – Interactive calendar component
-vanilla-javascript – No frameworks/dependencies
-responsive-design – Mobile-friendly
-open-meteo – Weather data source
-quick-links – Bookmark/shortcut feature
-static-site – No backend required
-
-Enjoy your custom start page!
+Public domain.

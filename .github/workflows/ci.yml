@@ -1,0 +1,21 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax check (all JS modules)
+        run: |
+          for f in $(git ls-files 'js/**/*.js' 'worker/**/*.js' 'scripts/**/*.mjs'); do node --check "$f" || exit 1; done
+      - name: Unit tests
+        run: npm test
+      - name: config.json is valid
+        run: node -e "JSON.parse(require('fs').readFileSync('config.json','utf8'))"
