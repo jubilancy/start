@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "settings": {
+    "title": "startpage",
+    "favicon": { "type": "default", "value": "" },
+    "theme": { "mode": "light", "vars": {}, "customCss": "" },
+    "font": { "family": "", "googleFont": "", "dataUrl": "", "dataName": "" },
+    "background": { "type": "none", "value": "" },
+    "location": { "name": "Alexandria, Virginia", "lat": 38.8048, "lon": -77.0469 },
+    "units": "imperial",
+    "workerUrl": ""
+  },
+  "tabs": [
+    {
+      "id": "home",
+      "name": "Home",
+      "columns": [
+        {
+          "id": "c1", "w": 1, "align": "center",
+          "widgets": [
+            { "id": "w-greeting", "type": "greeting", "config": {} },
+            {
+              "id": "w-news", "type": "rss",
+              "config": {
+                "heading": "Here's the latest news from",
+                "feeds": [
+                  { "name": "Hacker News", "url": "hn:top" },
+                  { "name": "Feed.Eliana", "url": "https://feed.eliana.lol/feed.json" }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "c2", "w": 1,
+          "widgets": [
+            { "id": "w-calendar", "type": "calendar", "config": {} },
+            { "id": "w-search", "type": "search", "config": {} },
+            {
+              "id": "w-links", "type": "links",
+              "config": {
+                "layout": "icons",
+                "groups": [
+                  {
+                    "name": "",
+                    "items": [
+                      { "title": "GitHub", "url": "https://github.com/jubilancy", "icon": "si:github" },
+                      { "title": "Tumblr", "url": "https://etamr.tumblr.com", "icon": "si:tumblr" },
+                      { "title": "Last.fm", "url": "https://last.fm/user/funnyprettynice", "icon": "si:lastdotfm" },
+                      { "title": "Wikipedia", "url": "https://en.wikipedia.org/wiki/Main_Page", "icon": "si:wikipedia" },
+                      { "title": "Google Images", "url": "https://images.google.com/", "icon": "lucide:image" }
+                    ]
+                  },
+                  {
+                    "name": "",
+                    "items": [
+                      { "title": "Hacker News", "url": "https://news.ycombinator.com/", "icon": "si:ycombinator" },
+                      { "title": "Reddit", "url": "https://reddit.com/r/arknights", "icon": "si:reddit" },
+                      { "title": "ChatGPT", "url": "https://chat.openai.com/", "icon": "lucide:message-square" }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
