@@ -1,0 +1,46 @@
+name: Deploy Worker
+on:
+  push:
+    branches: [main]
+    paths: ['worker/**', '.github/workflows/deploy-worker.yml']
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # Add these in GitHub → Settings → Secrets and variables → Actions → New repository secret
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      START_TOKEN: ${{ secrets.START_TOKEN }}
+      RAINDROP_TOKEN: ${{ secrets.RAINDROP_TOKEN }}
+    steps:
+      - name: Check required secrets
+        run: |
+          missing=0
+          for v in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID START_TOKEN; do
+            if [ -z "${!v}" ]; then echo "::warning::Repository secret $v is not set — skipping Worker deploy"; missing=1; fi
+          done
+          echo "skip=$missing" >> "$GITHUB_ENV"
+      - uses: actions/checkout@v4
+        if: env.skip == '0'
+      - name: Deploy Worker (+ START_TOKEN secret)
+        if: env.skip == '0'
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: worker
+          secrets: |
+            START_TOKEN
+      - name: Set RAINDROP_TOKEN secret (optional)
+        if: env.skip == '0' && env.RAINDROP_TOKEN != ''
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: worker
+          command: versions list
+          secrets: |
+            RAINDROP_TOKEN

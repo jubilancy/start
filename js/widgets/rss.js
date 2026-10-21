@@ -1,5 +1,5 @@
 import { register } from '../core/widgets.js';
-import { h, safeUrl, timeAgo, fetchJSON, cached, download, pickFile, esc } from '../core/util.js';
+import { h, safeUrl, timeAgo, fetchJSON, fetchText, cached, download, pickFile, esc } from '../core/util.js';
 import { fetchViaProxy } from '../core/worker.js';
 
 /* ---------- parsing ---------- */
@@ -45,9 +45,11 @@ async function loadHN(kind) {
   }));
 }
 
-/** Special sources: hn:top | hn:new | hn:best  — public Firebase API, CORS-enabled. */
+/** Special sources: hn:top | hn:new | hn:best (public Firebase API, CORS-enabled) and static:<slug> (data/feeds/<slug>.json built by the scheduled GitHub Action). */
 export async function loadFeed(url) {
   const hn = /^hn:(top|new|best)$/.exec(url);
+  const st = /^static:([\w-]+)$/.exec(url);
+  if (st) return parseFeed(await cached('feed.' + url, 5 * 60e3, () => fetchText(`data/feeds/${st[1]}.json`, { cache: 'no-cache' })));
   const items = hn ? await cached('hn.' + hn[1], 5 * 60e3, () => loadHN(hn[1]))
     : parseFeed(await cached('feed.' + url, 5 * 60e3, () => fetchViaProxy(url)));
   return items;
@@ -134,7 +136,7 @@ register({
   schema: [
     { key: 'heading', label: 'Heading (blank to hide)', type: 'text' },
     { key: 'feeds', label: 'Feeds', type: 'lines', fields: ['name', 'url'], placeholder: 'Name | https://example.com/feed.xml',
-      help: 'One per line: Name | URL. Use hn:top, hn:new or hn:best for Hacker News (no proxy needed). Other feeds are fetched directly and fall back to the Worker proxy when blocked by CORS.' },
+      help: 'One per line: Name | URL. Use hn:top, hn:new or hn:best for Hacker News (no proxy needed), or static:<slug> for a feed pre-built by the GitHub Action (feeds.build.json). Other feeds are fetched directly and fall back to the Worker proxy when blocked by CORS.' },
     { key: 'mode', label: 'Multiple feeds', type: 'select', options: [['switch', 'Click heading to switch'], ['merge', 'Merge into one list']] },
     { key: 'limit', label: 'Items to show', type: 'number', min: 1, max: 50 },
     { key: 'unread', label: 'Track unread items', type: 'checkbox' },
