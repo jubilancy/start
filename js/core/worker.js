@@ -2,7 +2,12 @@
 import { settings } from './store.js';
 import { fetchRaw } from './util.js';
 
-export const workerBase = () => (settings().workerUrl || '').replace(/\/+$/, '');
+// Accepts "my-worker.me.workers.dev" (adds https://) and trailing slashes.
+export const workerBase = () => {
+  let u = (settings().workerUrl || '').trim().replace(/\/+$/, '');
+  if (u && !/^https?:\/\//i.test(u)) u = (/^(localhost|127\.)/.test(u) ? 'http://' : 'https://') + u;
+  return u;
+};
 export const hasWorker = () => !!workerBase();
 
 function headers(extra = {}) {
