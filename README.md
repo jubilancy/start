@@ -23,9 +23,9 @@ A fully customizable personal start page: vanilla HTML/CSS/JS, **no framework an
 
 | Widget | Data source | Docs | Limits |
 |---|---|---|---|
-| Greeting | Open-Meteo (weather tokens) | [Open-Meteo docs](https://open-meteo.com/en/docs) | Non-commercial use, fair-use rate limits |
+| Greeting | Open-Meteo (weather tokens) | [Open-Meteo docs](https://open-meteo.com/en/docs) | Free API: non-commercial, 10,000 calls/day, no uptime guarantee ([pricing](https://open-meteo.com/en/pricing)) |
 | Weather (+ forecast strip, city search) | Open-Meteo forecast + geocoding | [forecast](https://open-meteo.com/en/docs) · [geocoding](https://open-meteo.com/en/docs/geocoding-api) | Same; 429 when shared IPs hammer it |
-| RSS / News (multi-feed, unread, OPML) | Any RSS/Atom/JSON Feed; `hn:top|new|best` uses the Hacker News Firebase API | [HN API](https://github.com/HackerNews/API) | Most feeds lack CORS headers → need the Worker `/proxy` |
+| RSS / News (multi-feed, unread, OPML) | Any RSS/Atom/JSON Feed; `hn:top|new|best` uses the Hacker News Firebase API | [HN Firebase endpoints](https://hacker-news.firebaseio.com/v0/topstories.json) (live-checked; the docs repo page was not reachable from my sandbox) | Most feeds lack CORS headers → need the Worker `/proxy` |
 | Calendar (month, ICS agenda, Google embed) | ICS URL via browser/Worker; Google Calendar embed iframe | [Google embed help](https://support.google.com/calendar/answer/41207) | ICS usually needs Worker proxy; embed needs a public calendar or Google sign-in |
 | Search | None (builds URLs) | — | — |
 | Quick links | Favicon chain: DuckDuckGo → Google s2 → `/favicon.ico` → letter; [Simple Icons](https://simpleicons.org) and [Lucide](https://lucide.dev) via jsDelivr | [jsDelivr](https://www.jsdelivr.com/) | Favicon services are third-party image requests |
