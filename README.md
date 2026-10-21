@@ -81,6 +81,8 @@ Every external source below was fetched live while building this (status/CORS ch
 | Quick-capture inbox | Worker `/inbox` (KV) | [Workers KV](https://developers.cloudflare.com/kv/) | KV free-tier daily write limits apply |
 | Uptime checker, Page-change watcher | Worker cron every 5 min (KV) | [Cron Triggers](https://developers.cloudflare.com/workers/configuration/cron-triggers/) | 50 sites max per list; results are 5-minute granularity |
 
+**Note:** rss.glosse.me (your CF RSS Reader) is login-protected (its API answers 401 without an Authorization header), so it can't be used as a public feed source here.
+
 **Not built:** Reddit reader (reddit.com blocked every request I made from my environment, so I couldn't verify any endpoint works, and I won't ship it unverified) and word of the day (the dictionary API I tried was down and Wiktionary's feed was rate-limited when I tested, so I couldn't confirm a working source).
 
 ## Writing a widget
