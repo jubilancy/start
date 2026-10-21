@@ -12,7 +12,19 @@ function headers(extra = {}) {
 
 export async function workerFetch(path, opts = {}, ms) {
   if (!hasWorker()) throw new Error('Worker URL not set (Settings → Integrations)');
-  return fetchRaw(workerBase() + path, { ...opts, headers: headers(opts.headers) }, ms);
+  try {
+    return await fetchRaw(workerBase() + path, { ...opts, headers: headers(opts.headers) }, ms);
+  } catch (e) {
+    // surface the Worker's own JSON error ({error: "..."}) instead of a bare "HTTP 503"
+    if (/^HTTP \d+$/.test(e.message)) {
+      try {
+        const r = await fetch(workerBase() + path, { ...opts, headers: headers(opts.headers) });
+        const j = await r.json();
+        if (j.error) throw new Error(j.error);
+      } catch (inner) { if (inner.message && !/^(HTTP|Unexpected|Failed|JSON)/.test(inner.message)) throw inner; }
+    }
+    throw e;
+  }
 }
 export const workerJSON = async (path, opts, ms) => (await workerFetch(path, opts, ms)).json();
 

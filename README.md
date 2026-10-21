@@ -57,16 +57,31 @@ RSS defaults to the **Worker proxy**: it is live (5-min edge cache), needs no re
 
 ## Widgets
 
-| Widget | Data source | Docs | Limits |
-|---|---|---|---|
-| Greeting | Open-Meteo (weather tokens) | [Open-Meteo docs](https://open-meteo.com/en/docs) | Free API: non-commercial, 10,000 calls/day, no uptime guarantee ([pricing](https://open-meteo.com/en/pricing)) |
-| Weather (+ forecast strip, city search) | Open-Meteo forecast + geocoding | [forecast](https://open-meteo.com/en/docs) · [geocoding](https://open-meteo.com/en/docs/geocoding-api) | Same; 429 when shared IPs hammer it |
-| RSS / News (multi-feed, unread, OPML) | Any RSS/Atom/JSON Feed; `hn:top|new|best` uses the Hacker News Firebase API | [HN Firebase endpoints](https://hacker-news.firebaseio.com/v0/topstories.json) (live-checked; the docs repo page was not reachable from my sandbox) | Most feeds lack CORS headers → need the Worker `/proxy` |
-| Calendar (month, ICS agenda, Google embed) | ICS URL via browser/Worker; Google Calendar embed iframe | [Google embed help](https://support.google.com/calendar/answer/41207) | ICS usually needs Worker proxy; embed needs a public calendar or Google sign-in |
-| Search | None (builds URLs) | — | — |
-| Quick links | Favicon chain: DuckDuckGo → Google s2 → `/favicon.ico` → letter; [Simple Icons](https://simpleicons.org) and [Lucide](https://lucide.dev) via jsDelivr | [jsDelivr](https://www.jsdelivr.com/) | Favicon services are third-party image requests |
+Every external source below was fetched live while building this (status/CORS checked); "Worker" = needs the optional Cloudflare Worker.
 
-(More widgets are added in later milestones; this table is the source of truth for data sources.)
+| Widget | Data source | Verified docs | Limits |
+|---|---|---|---|
+| Greeting | Open-Meteo (weather tokens) | [docs](https://open-meteo.com/en/docs) | Free API: non-commercial, 10,000 calls/day, no uptime guarantee ([pricing](https://open-meteo.com/en/pricing)) |
+| Weather (forecast strip, city search) | Open-Meteo forecast + geocoding | [forecast](https://open-meteo.com/en/docs) · [geocoding](https://open-meteo.com/en/docs/geocoding-api) | Same as above |
+| Moon & sun | Moon phase computed locally; sunrise/sunset from Open-Meteo | [docs](https://open-meteo.com/en/docs) | Phase is an approximation (mean synodic month), good to about a day |
+| RSS / News (multi-feed, unread, OPML) | Any RSS/Atom/JSON Feed; `hn:top\|new\|best`; `static:<slug>` | [HN endpoint](https://hacker-news.firebaseio.com/v0/topstories.json) (live-checked) | Most feeds lack CORS → Worker `/proxy` or the pre-build Action |
+| Calendar (month, ICS agenda, Google embed) | ICS URL (direct or Worker `/proxy`); Google Calendar embed iframe | [Google embed help](https://support.google.com/calendar/answer/41207) | Embed needs a public calendar or Google sign-in; ICS recurrence supports DAILY/WEEKLY/MONTHLY/YEARLY, INTERVAL, COUNT, UNTIL, BYDAY, BYMONTHDAY, EXDATE |
+| Search | none (builds URLs) | – | – |
+| Quick links | Favicons: DuckDuckGo → Google s2 → `/favicon.ico` → letter; icons from [Simple Icons](https://simpleicons.org) / [Lucide](https://lucide.dev) via [jsDelivr](https://www.jsdelivr.com/) | live-checked | Favicon services are third-party image requests |
+| Sticky note | none (localStorage) | – | Markdown is a safe subset (no raw HTML) |
+| To-do list, Habit tracker, Countdowns, Calculator, Timer / Pomodoro, World clocks | none (localStorage / `Intl`) | – | Stored in this browser; use Backup/Sync to move |
+| Stocks & crypto | Crypto: CoinGecko `simple/price` (browser). Stocks: Yahoo chart endpoint via Worker `/quote` | [CoinGecko rate limits](https://docs.coingecko.com/docs/common-errors-rate-limit) | CoinGecko keyless = IP-based limit; Yahoo endpoint is **unofficial** and rate-limits/breaks |
+| Hacker News / Bluesky | HN Firebase API; Bluesky public AppView (`public.api.bsky.app`) | [Bluesky API](https://docs.bsky.app/docs/api/app-bsky-feed-get-author-feed) | Public, read-only, no login |
+| GitHub activity | `api.github.com` user events + repo commits | [events](https://docs.github.com/en/rest/activity/events) · [rate limits](https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api) | 60 requests/hour unauthenticated per IP; optional token raises it |
+| Reading queue (Raindrop) | Raindrop REST API via Worker | [API](https://developer.raindrop.io/v1/collections/methods) | Needs `RAINDROP_TOKEN`; 50 items/page |
+| Random bookmark / link of the day | Your quick links, or Raindrop via Worker | – | – |
+| Quote / on this day | Quote of the day: [DummyJSON](https://dummyjson.com/docs/quotes) (1,454 quotes, picked by calendar day). On this day / featured article: Wikipedia feed | [Wikimedia Feed API](https://api.wikimedia.org/wiki/Feed_API/Reference/Featured_content) | Wikimedia rate limits; shared IPs can get 429 |
+| Currency & unit converter | Units offline; currency from Frankfurter (ECB-style reference rates, no key) | [frankfurter.dev](https://frankfurter.dev/) | Daily rates; uses the `/v1` endpoint |
+| Embed (iframe) | Any https page | – | Sites that send `X-Frame-Options`/`frame-ancestors` refuse to be framed |
+| Quick-capture inbox | Worker `/inbox` (KV) | [Workers KV](https://developers.cloudflare.com/kv/) | KV free-tier daily write limits apply |
+| Uptime checker, Page-change watcher | Worker cron every 5 min (KV) | [Cron Triggers](https://developers.cloudflare.com/workers/configuration/cron-triggers/) | 50 sites max per list; results are 5-minute granularity |
+
+**Not built:** Reddit reader (reddit.com blocked every request I made from my environment, so I couldn't verify any endpoint works, and I won't ship it unverified) and word of the day (the dictionary API I tried was down and Wiktionary's feed was rate-limited when I tested, so I couldn't confirm a working source).
 
 ## Writing a widget
 
