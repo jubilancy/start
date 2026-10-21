@@ -1,0 +1,13 @@
+{
+  // Deployed by .github/workflows/deploy-worker.yml (or `npx wrangler deploy` in /worker).
+  // KV is auto-provisioned on first deploy (no namespace id needed): https://developers.cloudflare.com/workers/wrangler/configuration/#automatic-provisioning
+  "name": "start-worker",
+  "main": "src/index.js",
+  "compatibility_date": "2026-10-01",
+  "kv_namespaces": [{ "binding": "KV" }],
+  "triggers": { "crons": ["*/5 * * * *"] },
+  "vars": {
+    // Comma-separated browser origins allowed by CORS (localhost is always allowed for previews).
+    "ALLOWED_ORIGINS": "https://start.glosse.me"
+  }
+}
