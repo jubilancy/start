@@ -2,90 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
   <link href="data:image/x-icon;base64,AAABAAEAEBAAAAEAGABoAwAAFgAAACgAAAAQAAAAIAAAAAEAGAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAD/hAD/hAD/hAAAAAAAAAAAAAD/hAD/hAD/hAAAAAAAAAAAAAD/hAD/hAAAAAD/hAAl1vol1vol1vr/hAD/hAD/hAAl1vol1vol1vr/hAD/hAD/hAAl1vol1vr/hAD/hAAl1vrt+v/t+v8l1vol1vol1vrt+v/t+v/t+v8l1vol1vol1vrt+v8l1vr/hAD/hAAl1vrt+v/t+v/t+v/t+v/t+v/t+v/t+v/t+v/t+v/t+v/t+v8l1vr/hAAAAAAAAAD/hAAl1vrt+v/t+v/t+v/t+v9sX8lsX8nt+v/t+v/t+v/t+v8l1vr/hAAAAAAAAAD/hAAl1vrt+v/t+v/t+v9sX8lsX8lsX8lsX8nt+v/t+v/t+v8l1vr/hAAAAAAAAAD/hAAl1vrt+v/t+v9sX8lsX8mjmO2jmO1sX8lsX8nt+v/t+v/t+v8l1vr/hAD/hAAl1vrt+v/t+v9sX8lsX8mjmO2jmO2jmO2jmO1sX8lsX8nt+v/t+v8l1vr/hAD/hAAl1vrt+v/t+v9sX8mjmO2jmO2jmO2jmO2jmO2jmO1sX8nt+v/t+v8l1vr/hAD/hAAl1vrt+v/t+v9sX8mjmO2jmO1sX8lsX8mjmO2jmO1sX8nt+v8l1vr/hAAAAAAAAAD/hAAl1vrt+v9sX8lsX8lsX8lsX8lsX8lsX8lsX8lsX8nt+v8l1vr/hAAAAAAAAAD/hAAl1vrt+v/t+v9sX8lsX8nt+v/t+v9sX8lsX8nt+v/t+v8l1vr/hAAAAAAAAAD/hAAl1vrt+v/t+v/t+v/t+v/t+v/t+v/t+v/t+v/t+v/t+v/t+v8l1vr/hAD/hAAl1vrt+v8l1vol1vol1vrt+v/t+v/t+v8l1vol1vol1vrt+v/t+v8l1vr/hAD/hAAl1vol1vr/hAD/hAD/hAAl1vol1vol1vr/hAD/hAD/hAAl1vol1vol1vr/hAAAAAD/hAD/hAAAAAAAAAAAAAD/hAD/hAD/hAAAAAAAAAAAAAD/hAD/hAD/hAAAAACOOQAAAAAAAAAAAAAAAQAAgAEAAIABAACAAAAAAAAAAAAAAAAAAQAAgAEAAIABAACAAAAAAAAAAAAAAACccQAA" rel="icon" type="image/x-icon">
   <title>startpage</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="content">
-    <div class="left">
-      <span id="weather" class="weather">
-        <img src="https://icongr.am/feather/thermometer.svg?size=24&color=currentColor" alt="Weather">
-        <img src="https://icongr.am/feather/loader.svg?size=24&color=black" class="loader" alt="Loading">
-      </span>
-      <div class="headline">
-        <h1>
-          Good <span id="time">Morning</span>,<br>
-          The weather is currently
-          <span id="status"><img src="https://icongr.am/feather/loader.svg?size=24&color=black" class="loader" alt="Loading"></span>.<br>
-          Here's the latest news from
-          <span class="provider" id="provider" onclick="toggleProvider()">Hacker News</span>:
-        </h1>
-      </div>
-      <div id="newsfeed" class="newsfeed">
-        <img src="https://icongr.am/feather/loader.svg?size=24&color=black" class="loader" alt="Loading">
-      </div>
-    </div>
-
-    <div class="right">
-      <div class="calendar">
-        <input type="date" id="setDate" onchange="updateCalendar()" style="display: none">
-        <div id="calendar-navigation">
-          <input type="button" value="<" id="prevMonth">
-          <table id="calendar">
-            <tr>
-              <th colspan="7" id="month-year"></th>
-            </tr>
-          </table>
-          <input type="button" value=">" id="nextMonth">
-        </div>
-      </div>
-
-      <div class="search">
-        <form name="search-ddg" onsubmit="return handleSearchOrURL()">
-          <input id="searchbar" class="searchbar" name="q" type="search" placeholder="Search.." autocomplete="off">
-          <input type="submit" style="display: none">
-        </form>
-
-        <div class="icon-row">
-          <a href="https://github.com/jubilancy" title="GitHub">
-            <img src="https://icongr.am/simple/github.svg?size=18&color=currentColor" alt="GitHub">
-          </a>
-          <a href="https://etamr.tumblr.com" title="Tumblr">
-            <img src="https://icongr.am/simple/tumblr.svg?size=18&color=currentColor" alt="Tumblr">
-          </a>
-          <a href="https://last.fm/user/funnyprettynice" title="Last.fm">
-            <img src="https://icongr.am/simple/lastfm.svg?size=18&color=currentColor" alt="Last.fm">
-          </a>
-          <a href="https://en.wikipedia.org/wiki/Main_Page" title="Wikipedia">
-            <img src="https://icongr.am/simple/wikipedia.svg?size=18&color=currentColor" alt="Wikipedia">
-          </a>
-          <a href="https://images.google.com/" title="google-image"
-            <img src="https://www.svgrepo.com/show/310919/image-search.svg" alt="google-image"
-            </a>
-        </div>
-
-        <div class="icon-row">
-          <a href="https://news.ycombinator.com/" title="Hacker News">
-            <img src="https://icongr.am/simple/ycombinator.svg?size=18&color=currentColor" alt="HN">
-          </a>
-          <a href="https://reddit.com/r/arknights" title="Reddit">
-            <img src="https://icongr.am/simple/reddit.svg?size=18&color=currentColor" alt="Reddit">
-          </a>
-          <a href="https://chat.openai.com/" title="ChatGPT">
-            <img src="https://icongr.am/feather/message-square.svg?size=18&color=currentColor" alt="ChatGPT">
-          </a>
-        </div>
-      </div>
-    </div>
+  <nav id="tabs" class="tabs" aria-label="Pages" hidden></nav>
+  <main id="board" class="content" aria-live="polite"></main>
+  <div class="fab" role="toolbar" aria-label="Page controls">
+    <button id="btn-palette" title="Command palette (Ctrl/Cmd+K)" aria-label="Command palette">⌘</button>
+    <button id="btn-edit" title="Edit layout" aria-label="Edit layout" aria-pressed="false">✎</button>
+    <button id="btn-settings" title="Settings" aria-label="Settings">⚙</button>
   </div>
-
-  <script src="currenttime.js"></script>
-  <script src="calendar.js"></script>
-  <script src="weather.js"></script>
-  <script src="rss.js"></script>
-  <script src="search.js"></script>
+  <noscript><p style="padding:2rem">This page needs JavaScript.</p></noscript>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>
